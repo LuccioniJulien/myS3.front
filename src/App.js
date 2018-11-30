@@ -1,26 +1,16 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
+import Auth from "./pages/auth";
 import "./App.css";
+import { Layout, Menu, Breadcrumb, Icon } from "antd";
+const { Header, Content, Footer, Sider } = Layout;
 
 class App extends Component {
 	render() {
 		return (
-			<div className="App">
-				<header className="App-header">
-					<img src={logo} className="App-logo" alt="logo" />
-					<p>
-						Edit <code>src/App.js</code> and save to reload.
-					</p>
-					<a
-						className="App-link"
-						href="https://reactjs.org"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Learn React
-					</a>
-				</header>
-			</div>
+			<Layout>
+				<Header className="App-header">myS3.front</Header>
+				<Auth />
+			</Layout>
 		);
 	}
 }
