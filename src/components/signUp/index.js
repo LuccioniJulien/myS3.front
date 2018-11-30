@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Layout, Input, Card, Button, message, Alert } from "antd";
+import fetchAPI from "../../../lib";
+import { REGISTER } from "../../../constants";
 import "./index.css";
 
 const { Content } = Layout;
@@ -22,19 +24,12 @@ class signUp extends Component {
 		console.log(this.state);
 	};
 
-	subscribe = () => {
+	subscribe = async () => {
 		if (!this.checkForm()) {
 			return;
 		}
-		let body = JSON.stringify(this.state.body);
-		const headers = {
-			"Content-type": "application/json"
-		};
-		const method = "POST";
-		const options = { headers, method, body };
-		fetch("http://localhost:5000/api/auth/register", options)
-			.then(res => res.json())
-			.then(json => this.handleResponse(json));
+		const json = await fetchAPI({ action: REGISTER, method: "POST", body });
+		this.handleResponse(json);
 	};
 
 	handleResponse(json) {
@@ -57,7 +52,7 @@ class signUp extends Component {
 		}
 		this.setState({ body });
 	}
-	
+
 	checkForm() {
 		for (const key in this.state.body) {
 			if (!this.state.body[key]) {
