@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Layout, Input, Card, Button, message, Alert } from "antd";
+import { Input, Card, Button, message, Alert } from "antd";
 import "./index.css";
 import fetchAPI from "../../lib";
 import CONSTANTE from "../../constants";
@@ -19,11 +19,16 @@ class signIn extends Component {
 	};
 
 	handleClickConnect = async context => {
+		if(this.checkForm()){
+			message.error("Please fill up all the entries");
+			return;
+		}
 		try {
 			const body = this.state;
 			const json = await fetchAPI({ action: LOGIN, method: "POST", body });
 			this.handleResponse(json, context);
 		} catch (error) {
+			console.log(error)
 			const json = { err: { fields: "Unknow error" } };
 			this.handleResponse(json, context);
 		}
@@ -36,6 +41,11 @@ class signIn extends Component {
 			return;
 		}
 		context.connexion(json);
+	}
+
+	checkForm() {
+		const { nickname, password } = this.state;
+		return nickname == "" || password == "";
 	}
 
 	handleChangeInput = event => {

@@ -10,9 +10,19 @@ export default async ({ action, method = "GET", body = {}, jwt = false }) => {
 		headers,
 		method
 	};
-	if (method === "POST") {
+	if (method === "POST" || method === "PUT") {
 		options.body = JSON.stringify(body);
 	}
-	const res = await fetch(url, options);
-	return res.json();
+	try {
+		const res = await fetch(url, options);
+
+		if (method == "DELETE" || method == "PUT") {
+			return await res.status;
+		}
+		const json = await res.json();
+		return json;
+	} catch (error) {
+		// window.localStorage.clear()
+		// window.location.href = "http://localhost:3000/"
+	}
 };

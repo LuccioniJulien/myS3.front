@@ -1,21 +1,35 @@
 import React, { Component } from "react";
 import Auth from "./pages/auth";
 import "./App.css";
-import { Layout, Menu, Breadcrumb, Icon } from "antd";
+import { Layout } from "antd";
+import Dashboard from "./pages/dashboard";
+import jwt from "jsonwebtoken";
+
 const { Header, Content, Footer, Sider } = Layout;
 const userContext = React.createContext({});
 export const context = userContext;
+
 class App extends Component {
 	state = {
 		isConnected: false,
 		user: null
 	};
 
-	handleConnexion(json) {
-		console.log(json);
+	componentDidMount() {
+		const meta = JSON.parse(localStorage.getItem("myS3"));
+		if (meta) {
+			const user = jwt.decode(meta.token);
+			user.token = meta.token;
+			this.setState({ user, isConnected: true });
+		}
 	}
 
-	render() {
+	handleConnexion = json => {
+		localStorage.setItem("myS3", JSON.stringify(json.meta));
+		this.setState({ isConnected: true, user: json.data });
+	};
+
+	renderAuthUI() {
 		return (
 			<Layout>
 				<Header className="App-header">myS3.front</Header>
@@ -24,6 +38,19 @@ class App extends Component {
 				</userContext.Provider>
 			</Layout>
 		);
+	}
+
+	renderDashbordUI() {
+		return (
+				<Dashboard user={this.state.user} />
+		);
+	}
+
+	render() {
+		if (this.state.isConnected) {
+			return this.renderDashbordUI();
+		}
+		return this.renderAuthUI();
 	}
 }
 
