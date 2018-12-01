@@ -4,15 +4,15 @@ export default async ({ action, method = "GET", body = {}, jwt = false }) => {
 		"Content-Type": "application/json"
 	};
 	if (jwt) {
-		headers.Authorization = `Bearer ${"yes"}`;
+		headers.Authorization = `Bearer ${jwt}`;
 	}
-	const option = {
+	const options = {
 		headers,
 		method
 	};
 	if (method === "POST") {
-		option.body = JSON.stringify(this.state);
+		options.body = JSON.stringify(body);
 	}
-	fetch = await fetch(url);
-	return fetch.json();
+	const res = await fetch(url, options);
+	return res.json();
 };

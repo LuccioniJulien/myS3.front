@@ -1,15 +1,16 @@
 import React, { Component } from "react";
 import { Layout, Input, Card, Button, message, Alert } from "antd";
-import fetchAPI from "../../../lib";
-import { REGISTER } from "../../../constants";
+import fetchAPI from "../../lib";
+import CONSTANTE from "../../constants";
 import "./index.css";
 
-const { Content } = Layout;
+const { REGISTER } = CONSTANTE;
 
 class signUp extends Component {
 	state = {
 		body: { nickname: "", email: "", password_confirmation: "", password: "" },
-		message: ""
+		message: "",
+		type: ""
 	};
 
 	handleClickNavigate = () => {
@@ -21,27 +22,31 @@ class signUp extends Component {
 		const body = Object.assign({}, this.state.body);
 		body[key] = value;
 		this.setState({ body });
-		console.log(this.state);
 	};
 
 	subscribe = async () => {
 		if (!this.checkForm()) {
 			return;
 		}
-		const json = await fetchAPI({ action: REGISTER, method: "POST", body });
-		this.handleResponse(json);
+		try {
+			const { body } = this.state;
+			const json = await fetchAPI({ action: REGISTER, method: "POST", body });
+			this.handleResponse(json);
+		} catch (error) {
+			const json = { err: { fields: "Unknow error" } };
+			this.handleResponse(json);
+		}
 	};
 
 	handleResponse(json) {
-		console.log(json);
 		if (json.data) {
-			message.success("Account created");
+			this.setState({ message: "Account created", type: "success" });
+			this.cleanForm();
 			return;
 		}
 		if (json.err) {
 			message.error("Error");
-			this.setState({ message: json.err.fields });
-			return;
+			this.setState({ message: json.err.fields, type: "error" });
 		}
 	}
 
@@ -64,12 +69,16 @@ class signUp extends Component {
 	}
 
 	render() {
-		const { message } = this.state;
+		const { message, type } = this.state;
 		const alert =
 			message === "" || !message ? (
 				<></>
 			) : (
-				<Alert message={message} type="error" style={{ marginTop: 10 }} />
+				<Alert
+					message={message}
+					type={type}
+					style={{ marginTop: 10, width: 400 }}
+				/>
 			);
 		return (
 			<div>
@@ -85,7 +94,7 @@ class signUp extends Component {
 							Log in
 						</Button>
 					}
-					style={{ width: 300, marginTop: 10 }}
+					style={{ width: 400, marginTop: 10 }}
 				>
 					<div style={{ marginBottom: 16 }}>
 						<Input

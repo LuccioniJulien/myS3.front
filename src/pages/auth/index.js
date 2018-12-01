@@ -5,10 +5,9 @@ import { Layout, Row, Col } from "antd";
 import "./index.css";
 
 const { Content } = Layout;
-
 class Auth extends Component {
 	state = {
-		isSignIn: false
+		isSignIn: true,
 	};
 
 	navigate = (isSignIn = !this.state.isSignIn) => {
