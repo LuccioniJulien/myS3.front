@@ -23,7 +23,8 @@ export default {
 	DELETEBUCKET: formatBucket,
 	PUTBUCKET: formatBucket,
 	POSTBLOB: formatBlob,
-	GETBLOB: formatBlob,
+	GETBLOBS: formatBlob,
+	GETBLOB:formatBlob,
 	DELETEBLOB: formatBlob,
 	PUTBLOB: formatBlob
 };

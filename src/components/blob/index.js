@@ -1,22 +1,27 @@
 import React, { Component } from "react";
-import { List, Row, Input, Button, Col, message } from "antd";
+import { List, Row, Input, Button, Col, message, Modal } from "antd";
 import fetchAPI from "../../lib";
 import CONSTANTE from "../../constants";
+import download from "downloadjs";
 import "./index.css";
-const { GETBUCKETS,POSTBUCKET, DELETEBUCKET, PUTBUCKET } = CONSTANTE;
+const { GETBLOBS, GETBLOB, POSTBLOB, DELETEBLOB, PUTBLOB } = CONSTANTE;
 class BlobList extends Component {
 	state = {
 		blobs: [],
+		bucket: this.props.bucket,
 		user: this.props.user,
-		body: null,
-		rename: ""
+		rename: "",
+		file_to_upload: null,
+		visible: false,
+		meta: { path: "", size: "" }
 	};
 
 	async componentDidMount() {
 		const { uuid, token: jwt } = this.state.user;
+		const { id } = this.state.bucket;
 		try {
 			const json = await fetchAPI({
-				action: GETBUCKETS(uuid),
+				action: GETBLOBS(uuid, id),
 				method: "GET",
 				jwt
 			});
@@ -30,25 +35,30 @@ class BlobList extends Component {
 	}
 
 	handlerClickAdd = async () => {
-		if (!this.state.body) {
-			message.error("No blank name");
+		if (!this.state.file_to_upload) {
+			message.error("Select a file to upload");
 			return;
 		}
+		const { id } = this.state.bucket;
 		const { uuid, token: jwt } = this.state.user;
-		const { body } = this.state;
+		const { file_to_upload } = this.state;
+		var formData = new FormData();
+		formData.append("file_to_upload", file_to_upload);
+		formData.append("name", file_to_upload.name);
 		try {
 			const json = await fetchAPI({
-				action: POSTBUCKET(uuid),
+				action: POSTBLOB(uuid, id),
 				method: "POST",
-				body: { name: body },
-				jwt
+				body: formData,
+				jwt,
+				file: true
 			});
 			console.log(json);
 			if (this.handleResponse(json)) {
 				const { blobs } = this.state;
-				json.isText = true;
-				blobs.push(json);
-				this.setState({ blobs, body: "" });
+				json.data.isText = true;
+				blobs.push(json.data);
+				this.setState({ blobs });
 			}
 		} catch (error) {
 			const json = { err: { fields: error } };
@@ -56,21 +66,25 @@ class BlobList extends Component {
 		}
 	};
 
+	fileChangedHandler = event => {
+		const file_to_upload = event.target.files[0];
+		this.setState({ file_to_upload });
+	};
+
 	handleClickDelete = async id => {
 		const { uuid, token: jwt } = this.state.user;
+		const { id: bucket_id } = this.state.bucket;
 		try {
 			const statut = await fetchAPI({
-				action: DELETEBUCKET(uuid, id),
+				action: DELETEBLOB(uuid, bucket_id, id),
 				method: "DELETE",
 				jwt
 			});
-			console.log(statut);
 			if (statut != 204) {
 				throw new Error("Error");
 			}
 			let { blobs } = this.state;
 			blobs = blobs.filter(x => x.id != id);
-			console.log(blobs);
 			this.setState({ blobs });
 			this.handleResponseStatut(statut);
 		} catch (error) {
@@ -108,12 +122,13 @@ class BlobList extends Component {
 
 	isNameAlreadyExist(name) {
 		const b = this.state.blobs.filter(x => x.name == name);
-		return b;
+		return b.length != 0;
 	}
 	handleClickPut = async item => {
 		const { rename: name } = this.state;
+		const { id: bucket_id } = this.state.bucket;
 		if (this.isNameAlreadyExist(name)) {
-			message.error("Bucket with this name already exist");
+			message.error("Blobs with this name already exist");
 			return;
 		}
 		if (name == "") {
@@ -124,7 +139,7 @@ class BlobList extends Component {
 		const bucket = Object.assign({}, item);
 		try {
 			const statut = await fetchAPI({
-				action: PUTBUCKET(uuid, item.id),
+				action: PUTBLOB(uuid, bucket_id, item.id),
 				method: "PUT",
 				body: { name },
 				jwt
@@ -151,12 +166,90 @@ class BlobList extends Component {
 		this.setState({ blobs, rename: item.name });
 	}
 
+	handelDownload = async item => {
+		const id = item.id;
+		const { uuid, token: jwt } = this.state.user;
+		const { id: bucket_id } = this.state.bucket;
+		try {
+			const blob = await fetchAPI({
+				action: GETBLOB(uuid, bucket_id, id),
+				method: "GET",
+				jwt,
+				file: true,
+				download: true
+			});
+			download(blob, item.name, blob.type);
+		} catch (error) {}
+	};
+
+	handleMeta = async item => {
+		const id = item.id;
+		const { uuid, token: jwt } = this.state.user;
+		const { id: bucket_id } = this.state.bucket;
+		try {
+			const json = await fetchAPI({
+				action: GETBLOB(uuid, bucket_id, id + "/meta"),
+				method: "GET",
+				jwt
+			});
+			const meta = json.data.blob;
+			this.setState({ meta });
+			this.showModal();
+			console.log(json);
+		} catch (error) {}
+	};
+
+	handelClickCopy = async item => {
+		const id = item.id;
+		const { id: bucket_id } = this.state.bucket;
+		const { uuid, token: jwt } = this.state.user;
+		try {
+			const json = await fetchAPI({
+				action: POSTBLOB(uuid, bucket_id, id + "/copy"),
+				method: "POST",
+				body: {},
+				jwt
+			});
+			if (this.handleResponse(json)) {
+				const { blobs } = this.state;
+				json.data.isText = true;
+				blobs.push(json.data);
+				this.setState({ blobs });
+			}
+		} catch (error) {
+			const json = { err: { fields: error } };
+			this.handleResponse(json);
+		}
+	};
+
+	showModal = () => {
+		this.setState({
+			visible: true
+		});
+	};
+
+	handleOk = e => {
+		this.setState({
+			visible: false
+		});
+	};
+
+	handleCancel = e => {
+		this.setState({
+			visible: false
+		});
+	};
+
 	renderTableUI(item) {
 		if (item.isText) {
 			return (
 				<Row gutter={16}>
-					<Button style={{ marginRight: 8 }} type="primary">
-						Show
+					<Button
+						style={{ marginRight: 8 }}
+						type="primary"
+						onClick={() => this.handleMeta(item)}
+					>
+						Info
 					</Button>
 					<Button
 						style={{ marginRight: 8 }}
@@ -172,7 +265,20 @@ class BlobList extends Component {
 					>
 						Rename
 					</Button>
-					{item.name}
+					<Button
+						style={{ marginRight: 8 }}
+						type="dashed"
+						onClick={() => this.handelClickCopy(item)}
+					>
+						copy
+					</Button>
+					<a
+						onClick={() => {
+							this.handelDownload(item);
+						}}
+					>
+						{item.name}
+					</a>
 				</Row>
 			);
 		}
@@ -203,16 +309,19 @@ class BlobList extends Component {
 	}
 
 	render() {
+		const { path, size } = this.state.meta;
 		return (
 			<>
+				<Button
+					onClick={this.props.navigate}
+					style={{ width: "100%", minWidth: 50, marginBottom: 16 }}
+					type="primary"
+				>
+					return to bucket list
+				</Button>
 				<Row gutter={16} style={{ marginBottom: 16 }}>
 					<Col className="gutter-row" span={21}>
-						<Input
-							name="body"
-							addonBefore="Add a blob:"
-							onChange={this.handleChangeInput}
-							value={this.state.body}
-						/>
+						<input type="file" onChange={this.fileChangedHandler} />
 					</Col>
 					<Col className="gutter-row" span={3}>
 						<Button
@@ -225,11 +334,22 @@ class BlobList extends Component {
 					</Col>
 				</Row>
 				<List
-					header={<div>List of your blobs:</div>}
+					header={
+						<div>List of your blobs in {this.props.bucket.name} bucket:</div>
+					}
 					bordered
 					dataSource={this.state.blobs}
 					renderItem={item => <List.Item>{this.renderTableUI(item)}</List.Item>}
 				/>
+				<Modal
+					title="Meta"
+					visible={this.state.visible}
+					onOk={this.handleOk}
+					onCancel={this.handleCancel}
+				>
+					<p>Path: {path}</p>
+					<p>Size: {size}</p>
+				</Modal>
 			</>
 		);
 	}

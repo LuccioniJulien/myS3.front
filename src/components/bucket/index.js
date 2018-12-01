@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { List, Row, Input, Button, Col, message } from "antd";
+import Blobs from "../blob";
 import fetchAPI from "../../lib";
 import CONSTANTE from "../../constants";
 import "./index.css";
@@ -7,6 +8,7 @@ const { POSTBUCKET, DELETEBUCKET, PUTBUCKET } = CONSTANTE;
 class BucketList extends Component {
 	state = {
 		buckets: [],
+		bucket: null,
 		user: this.props.user,
 		body: null,
 		isBucketDetail: false,
@@ -113,7 +115,7 @@ class BucketList extends Component {
 
 	isNameAlreadyExist(name) {
 		const b = this.state.buckets.filter(x => x.name == name);
-		return b;
+		return b.length != 0;
 	}
 	handleClickPut = async item => {
 		const { rename: name } = this.state;
@@ -144,6 +146,11 @@ class BucketList extends Component {
 		}
 	};
 
+	handleClickShow(item) {
+		this.setState({ bucket: item });
+		this.navigation();
+	}
+
 	handelClickWillPut(item, bool = false) {
 		let { buckets } = this.state;
 		buckets = buckets = buckets.map(x => {
@@ -160,7 +167,11 @@ class BucketList extends Component {
 		if (item.isText) {
 			return (
 				<Row gutter={16}>
-					<Button style={{ marginRight: 8 }} type="primary">
+					<Button
+						style={{ marginRight: 8 }}
+						type="primary"
+						onClick={() => this.handleClickShow(item)}
+					>
 						Show
 					</Button>
 					<Button
@@ -208,6 +219,9 @@ class BucketList extends Component {
 	}
 
 	render() {
+		if (this.state.isBucketDetail) {
+			return <Blobs user={this.state.user} bucket={this.state.bucket} navigate={this.navigation} />;
+		}
 		return (
 			<>
 				<Row gutter={16} style={{ marginBottom: 16 }}>

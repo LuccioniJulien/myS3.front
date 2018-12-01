@@ -25,8 +25,10 @@ class App extends Component {
 	}
 
 	handleConnexion = json => {
+		const user = jwt.decode(json.meta.token);
 		localStorage.setItem("myS3", JSON.stringify(json.meta));
-		this.setState({ isConnected: true, user: json.data });
+		user.token = json.meta.token;
+		this.setState({ user, isConnected: true });
 	};
 
 	renderAuthUI() {
@@ -41,9 +43,7 @@ class App extends Component {
 	}
 
 	renderDashbordUI() {
-		return (
-				<Dashboard user={this.state.user} />
-		);
+		return <Dashboard user={this.state.user} />;
 	}
 
 	render() {
