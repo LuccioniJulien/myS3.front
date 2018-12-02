@@ -33,13 +33,13 @@ export default async ({
 		if (download) {
 			return res.blob();
 		}
-		if (method == "DELETE" || method == "PUT") {
+		if ((method == "DELETE" || method == "PUT") && res.status == 204) {
 			return res.status;
 		}
 		const json = await res.json();
 		return json;
 	} catch (error) {
-		window.localStorage.clear()
-		window.location.href = "http://localhost:3000/"
+		// window.localStorage.clear();
+		// window.location.href = "http://localhost:3000/";
 	}
 };

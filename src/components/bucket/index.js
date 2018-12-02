@@ -157,6 +157,8 @@ class BucketList extends Component {
 			if (x.id === item.id) {
 				x.isText = bool;
 				x.name = item.name;
+			} else {
+				x.isText = true;
 			}
 			return x;
 		});
@@ -220,7 +222,13 @@ class BucketList extends Component {
 
 	render() {
 		if (this.state.isBucketDetail) {
-			return <Blobs user={this.state.user} bucket={this.state.bucket} navigate={this.navigation} />;
+			return (
+				<Blobs
+					user={this.state.user}
+					bucket={this.state.bucket}
+					navigate={this.navigation}
+				/>
+			);
 		}
 		return (
 			<>

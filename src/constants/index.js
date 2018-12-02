@@ -5,7 +5,9 @@ const formatBucket = (uuid, id = "") => {
 	}
 	return `/users/${uuid}/buckets${bid}`;
 };
-
+const formatUser = (uuid) => {
+	return `/users/${uuid}`
+};
 const formatBlob = (uuid, id = "", blob_id = "") => {
 	let bid = blob_id;
 	if (blob_id != "") {
@@ -26,5 +28,6 @@ export default {
 	GETBLOBS: formatBlob,
 	GETBLOB:formatBlob,
 	DELETEBLOB: formatBlob,
-	PUTBLOB: formatBlob
+	PUTBLOB: formatBlob,
+	PUTUSER:formatUser
 };

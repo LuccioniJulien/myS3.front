@@ -160,6 +160,8 @@ class BlobList extends Component {
 			if (x.id === item.id) {
 				x.isText = bool;
 				x.name = item.name;
+			} else {
+				x.isText = true;
 			}
 			return x;
 		});

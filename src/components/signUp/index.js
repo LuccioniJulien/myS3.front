@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Layout, Input, Card, Button, message, Alert } from "antd";
+import { Input, Card, Button, message, Alert } from "antd";
 import fetchAPI from "../../lib";
 import CONSTANTE from "../../constants";
 import "./index.css";
