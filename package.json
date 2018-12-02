@@ -1,32 +1,35 @@
 {
-  "name": "mys3.front",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "antd": "^3.10.9",
-    "downloadjs": "^1.4.7",
-    "jsonwebtoken": "^8.4.0",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-scripts": "2.1.1",
-    "save": "^2.3.3"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
-  "devDependencies": {
-    "babel-plugin-module-resolver": "^3.1.1"
-  }
+	"name": "mys3.front",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"antd": "^3.10.9",
+		"downloadjs": "^1.4.7",
+		"jsonwebtoken": "^8.4.0",
+		"react": "^16.6.3",
+		"react-dom": "^16.6.3",
+		"react-scripts": "2.1.1",
+		"save": "^2.3.3"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": [
+		">0.2%",
+		"not dead",
+		"not ie <= 11",
+		"not op_mini all"
+	],
+	"devDependencies": {
+		"babel-plugin-module-resolver": "^3.1.1",
+		"babel-core": "^6.26.3",
+		"eslint-import-resolver-babel-module": "^4.0.0",
+		"@babel/preset-env": "^7.1.0"
+	}
 }

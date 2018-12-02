@@ -29,5 +29,6 @@ export default {
 	GETBLOB:formatBlob,
 	DELETEBLOB: formatBlob,
 	PUTBLOB: formatBlob,
-	PUTUSER:formatUser
+	PUTUSER:formatUser,
+	DELETEUSER:formatUser
 };

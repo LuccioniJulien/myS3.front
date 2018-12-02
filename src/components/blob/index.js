@@ -80,13 +80,11 @@ class BlobList extends Component {
 				method: "DELETE",
 				jwt
 			});
-			if (statut != 204) {
-				throw new Error("Error");
+			if (this.handleResponseStatut(statut)) {
+				let { blobs } = this.state;
+				blobs = blobs.filter(x => x.id != id);
+				this.setState({ blobs });
 			}
-			let { blobs } = this.state;
-			blobs = blobs.filter(x => x.id != id);
-			this.setState({ blobs });
-			this.handleResponseStatut(statut);
 		} catch (error) {
 			const json = { err: { fields: error } };
 			this.handleResponseStatut(json);

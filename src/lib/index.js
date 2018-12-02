@@ -39,7 +39,7 @@ export default async ({
 		const json = await res.json();
 		return json;
 	} catch (error) {
-		// window.localStorage.clear();
-		// window.location.href = "http://localhost:3000/";
+		window.localStorage.clear();
+		window.location.href = "http://localhost:3000/";
 	}
 };

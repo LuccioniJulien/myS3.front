@@ -1,4 +1,14 @@
 {
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"node": "current"
+				}
+			}
+		]
+	],
 	"plugins": [
 		[
 			"module-resolver",
@@ -6,7 +16,9 @@
 				"root": ["."],
 				"alias": {
 					"components": "./src/components",
-					"pages": "./src/pages"
+					"pages": "./src/pages",
+					"lib": "./src/lib",
+					"constants": "./src/constants"
 				}
 			}
 		]

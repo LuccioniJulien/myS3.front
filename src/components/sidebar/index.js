@@ -3,7 +3,7 @@ import { Layout, Card, Button, Input, message } from "antd";
 import "./index.css";
 import fetchAPI from "../../lib";
 import CONSTANTE from "../../constants";
-const { PUTUSER } = CONSTANTE;
+const { PUTUSER, DELETEUSER } = CONSTANTE;
 const { Sider, Content } = Layout;
 
 class SideBar extends Component {
@@ -14,7 +14,8 @@ class SideBar extends Component {
 		user.password_confirmation = "";
 		this.state = {
 			isProfilEdit: false,
-			user
+			user,
+			initialUser: this.props.user
 		};
 	}
 
@@ -62,15 +63,23 @@ class SideBar extends Component {
 							onChange={this.handleChangeInput}
 							name="password"
 							placeholder={"password"}
+							type="password"
 						/>
 						<Input
 							onChange={this.handleChangeInput}
 							name="password_confirmation"
 							placeholder={"password"}
+							type="password"
 						/>
-						<p>{email}</p>
 						<Button type="primary" size={"small"} onClick={this.handleClickPut}>
 							Save
+						</Button>
+						<Button
+							type="danger"
+							size={"small"}
+							onClick={this.handleClickDelete}
+						>
+							Delete
 						</Button>
 					</Card>
 				</Content>
@@ -93,7 +102,6 @@ class SideBar extends Component {
 			delete body.password;
 			delete body.password_confirmation;
 		}
-		console.log(body);
 		try {
 			const statut = await fetchAPI({
 				action: PUTUSER(uuid),
@@ -101,16 +109,38 @@ class SideBar extends Component {
 				body,
 				jwt
 			});
-			console.log(statut)
-			this.handleResponseStatut(statut);
+			if (this.handleResponseStatut(statut)) {
+				this.handleClickEditNav();
+				body.password = "";
+				body.password_confirmation = "";
+				this.setState({ user: body });
+			} else {
+				const user = Object.assign({}, this.state.initialUser);
+				this.setState({ user });
+			}
+		} catch (error) {
+			const json = { err: { fields: error } };
+			this.handleResponseStatut(json);
+		}
+	};
+
+	handleClickDelete = async item => {
+		const { uuid, token: jwt } = this.state.user;
+		try {
+			const statut = await fetchAPI({
+				action: DELETEUSER(uuid),
+				method: "DELETE",
+				jwt
+			});
+			if (this.handleResponseStatut(statut)) {
+				window.localStorage.clear();
+				window.location.href = "http://localhost:3000/";
+			}
 		} catch (error) {
 			const json = { err: { fields: error } };
 			this.handleResponseStatut(json);
 		}
 		this.handleClickEditNav();
-		body.password = "";
-		body.password_confirmation = "";
-		this.setState({ user: body });
 	};
 
 	cleanForm() {

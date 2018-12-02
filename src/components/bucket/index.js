@@ -71,15 +71,12 @@ class BucketList extends Component {
 				method: "DELETE",
 				jwt
 			});
-			console.log(statut);
-			if (statut != 204) {
-				throw new Error("Error");
+			if (this.handleResponseStatut(statut)) {
+				let { buckets } = this.state;
+				buckets = buckets.filter(x => x.id != id);
+				console.log(buckets);
+				this.setState({ buckets });
 			}
-			let { buckets } = this.state;
-			buckets = buckets.filter(x => x.id != id);
-			console.log(buckets);
-			this.setState({ buckets });
-			this.handleResponseStatut(statut);
 		} catch (error) {
 			const json = { err: { fields: error } };
 			this.handleResponseStatut(json);
